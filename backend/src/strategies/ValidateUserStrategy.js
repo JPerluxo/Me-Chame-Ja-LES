@@ -1,34 +1,18 @@
-const { UserTypeValues } = require('../enums/UserTypeEnum');
-
 class ValidateUserStrategy {
     static async execute(data) {
         try {
-            const missingFields = ['cpf', 'name', 'surname', 'email', 'password', 'birthDate', 'type', 'isActive'].filter(field => !(field in data));
+            const missingFields = ['name', 'email', 'password', 'type'].filter(field => !(field in data));
 
             if (missingFields.length > 0) {
                 throw new Error(`Os seguintes campos estão faltando: ${missingFields.join(', ')}.`);
             }
 
-            if (
-                ([data.cpf, data.name, data.surname, data.email, data.password, data.birthDate].some(v => v === undefined || v === null || v === ''))
-                || (data.type === undefined || data.type === null)
-                || (data.isActive === undefined || data.isActive === null)) {
+            if ([data.name, data.email, data.password, data.type].some(v => v === undefined || v === null || v === '')) {
                 throw new Error('Todos os campos obrigatórios devem estar preenchidos.');
-            }
-
-            if (typeof data.cpf !== 'string') {
-                throw new Error('O campo "CPF" deve conter uma string.');
-            }
-            else if (!/^\d{11}$/.test(data.cpf)) {
-                throw new Error('O campo "CPF" deve conter uma string numérica de 11 dígitos.');
             }
 
             if (typeof data.name !== 'string') {
                 throw new Error('O campo "Nome" deve conter uma string.');
-            }
-
-            if (typeof data.surname !== 'string') {
-                throw new Error('O campo "Sobrenome" deve conter uma string.');
             }
 
             if (typeof data.email !== 'string') {
@@ -44,17 +28,12 @@ class ValidateUserStrategy {
                 throw new Error('A senha deve ter pelo menos 8 caracteres, incluir letras maiúsculas, minúsculas e caracteres especiais.');
             }
 
-            if (typeof data.birthDate !== 'string' || isNaN(Date.parse(data.birthDate))) {
-                throw new Error('O campo "Data de Nascimento" deve conter uma data válida no formato YYYY-MM-DD.');
+            if (data.cellphone && (typeof data.cellphone !== 'string' || !/^\d{11}$/.test(data.cellphone))) {
+                throw new Error('O campo "Celular" deve conter uma string numérica de 11 dígitos.');
             }
 
-            const type = typeof data.type === 'string' ? parseInt(data.type, 10) : data.type;
-            if (isNaN(type) || !UserTypeValues.includes(type)) {
-                throw new Error('O campo "Tipo do Usuário" deve ter um valor válido.');
-            }
-
-            if (typeof data.isActive !== 'boolean') {
-                throw new Error('O campo "Usuário Ativo?" deve conter um booleano.');
+            if (typeof data.type !== 'string' || !["motorista", "solicitante"].includes(data.type)) {
+                throw new Error('O campo "Tipo do Usuário" deve conter um valor válido.');
             }
         } catch (error) {
             throw error.message;

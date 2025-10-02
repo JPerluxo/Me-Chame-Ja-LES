@@ -1,54 +1,49 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/dbConfig');
 
-const User = sequelize.define('users', {
-    cpf: {
-        type: DataTypes.STRING,
+const User = sequelize.define('usuarios', {
+    id: {
+        type: DataTypes.INTEGER,
         allowNull: false,
         primaryKey: true,
-        field: "usr_cpf"
+        autoIncrement: true,
+        field: "usuario_id"
     },
 
     name: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: "usr_nome"
-    },
-
-    surname: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        field: "usr_sobrenome"
+        field: "nome"
     },
 
     email: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: "usr_email"
+        field: "email"
     },
 
     password: {
         type: DataTypes.STRING,
         allowNull: false,
-        field: "usr_senha"
+        field: "senha"
     },
 
-    birthDate: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        field: "usr_data_nascimento"
+    cellphone: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        field: "telefone"
     },
 
     type: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.ENUM("motorista", "solicitante"),
         allowNull: false,
-        field: "usr_type"
+        field: "tipo_usuario"
     },
 
-    isActive: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        field: "usr_status"
+    createdAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+        field: "criado_em"
     }
 }, {
     timestamps: false,
