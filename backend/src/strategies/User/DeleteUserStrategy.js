@@ -1,5 +1,5 @@
-const sequelize = require("../config/dbConfig");
-const UserDAO = require('../daos/UserDAO');
+const sequelize = require("../../config/dbConfig");
+const UserDAO = require('../../daos/UserDAO');
 
 class DeleteUserStrategy {
     static async execute(id) {

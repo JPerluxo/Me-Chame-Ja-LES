@@ -1,9 +1,9 @@
-const ValidateUserStrategy = require('../strategies/ValidateUserStrategy');
-const CheckUserIfExistsStrategy = require('../strategies/CheckUserIfExistsStrategy');
-const SaveUserStrategy = require('../strategies/SaveUserStrategy');
-const UpdateUserStrategy = require('../strategies/UpdateUserStrategy');
-const GetUsersStrategy = require('../strategies/GetUsersStrategy');
-const DeleteUserStrategy = require('../strategies/DeleteUserStrategy');
+const ValidateUserStrategy = require('../strategies/User/ValidateUserStrategy');
+const CheckUserIfExistsStrategy = require('../strategies/User/CheckUserIfExistsStrategy');
+const SaveUserStrategy = require('../strategies/User/SaveUserStrategy');
+const UpdateUserStrategy = require('../strategies/User/UpdateUserStrategy');
+const GetUsersStrategy = require('../strategies/User/GetUsersStrategy');
+const DeleteUserStrategy = require('../strategies/User/DeleteUserStrategy');
 const { Op } = require("sequelize");
 
 class UserService {

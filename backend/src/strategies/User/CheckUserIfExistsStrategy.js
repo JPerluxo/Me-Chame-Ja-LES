@@ -1,4 +1,4 @@
-const UserDAO = require('../daos/UserDAO');
+const UserDAO = require('../../daos/UserDAO');
 
 class CheckUserIfExistsStrategy {
     static async execute(where, mode) {
