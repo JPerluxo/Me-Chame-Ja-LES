@@ -12,4 +12,7 @@ app.get('/', (req, res) => res.send('Server OK!'));
 const userController = require('./src/controllers/userController');
 app.use('/user', userController);
 
+const vehicleController = require('./src/controllers/vehicleController');
+app.use('/vehicle', vehicleController);
+
 module.exports = app;
