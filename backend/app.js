@@ -15,4 +15,7 @@ app.use('/user', userController);
 const vehicleController = require('./src/controllers/vehicleController');
 app.use('/vehicle', vehicleController);
 
+const deliveryController = require('./src/controllers/deliveryController');
+app.use('/delivery', deliveryController);
+
 module.exports = app;
