@@ -37,7 +37,7 @@ router.get('/getById', async (req, res) => {
 
 router.get('/getAll', async (req, res) => {
     try {
-        const result = await DeliveryService.getAllDeliverys();
+        const result = await DeliveryService.getAllDeliveries();
         res.status(200).json(result);
     } catch (error) {
         res.status(500).json({ message: `Erro ao consultar entregas: ${error}`, status: 500 });

@@ -29,11 +29,7 @@ class ValidateDeliveryStrategy {
 
             if (data.vehicleId !== undefined && data.vehicleId !== null && data.vehicleId !== '') {
                 const vehicleId = Number(data.vehicleId);
-                if (
-                    isNaN(vehicleId) ||
-                    !Number.isInteger(vehicleId) ||
-                    !(await VehicleDAO.findOne({ id: vehicleId }))
-                ) {
+                if (isNaN(vehicleId) || !Number.isInteger(vehicleId) || !(await VehicleDAO.findOne({ id: vehicleId }))) {
                     throw new Error('O campo "Veículo" deve conter um ID válido.');
                 }
             }

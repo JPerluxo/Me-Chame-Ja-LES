@@ -50,11 +50,16 @@ class DeliveryDAO {
 
     static async findOne(where, transaction = null) {
         try {
-            return await Delivery.findOne({
+            const delivery = await Delivery.findOne({
                 where: where,
-                include: [{ model: DeliveryItem, as: "items" }],
                 transaction
             });
+            if (!delivery) return null;
+            const items = await DeliveryItem.findAll({
+                where: { deliveryId: delivery.id },
+                transaction
+            });
+            return { ...delivery.toJSON(), items };
         } catch (error) {
             throw error;
         }
@@ -62,10 +67,15 @@ class DeliveryDAO {
 
     static async findAll(transaction = null) {
         try {
-            return await Delivery.findAll({
-                include: [{ model: DeliveryItem, as: "items" }],
-                transaction
-            });
+            const deliveries = await Delivery.findAll({ transaction });
+            return await Promise.all(deliveries.map(async delivery => {
+                const items = await DeliveryItem.findAll({
+                    where: { deliveryId: delivery.id },
+                    transaction
+                });
+                return { ...delivery.toJSON(), items };
+            })
+        );
         } catch (error) {
             throw error;
         }
