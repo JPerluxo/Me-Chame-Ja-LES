@@ -21,7 +21,7 @@ class AuthUserStrategy {
             };
 
             await transaction.commit();
-            return { status: 200, formattedUser };
+            return { success: true, message: 'Login realizado com sucesso!', user: formattedUser };
         } catch (error) {
             await transaction.rollback();
             throw error;
