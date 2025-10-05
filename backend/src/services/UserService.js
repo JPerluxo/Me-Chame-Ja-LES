@@ -4,9 +4,36 @@ const SaveUserStrategy = require('../strategies/User/SaveUserStrategy');
 const UpdateUserStrategy = require('../strategies/User/UpdateUserStrategy');
 const GetUsersStrategy = require('../strategies/User/GetUsersStrategy');
 const DeleteUserStrategy = require('../strategies/User/DeleteUserStrategy');
+const AuthUserStrategy = require('../strategies/User/AuthUserStrategy');
 const { Op } = require("sequelize");
 
+
 class UserService {
+    static async validateUser(email, password) {
+        try {
+            console.log("📩 Iniciando login para:", email);
+
+            const user = await AuthUserStrategy.execute({ email, password });
+            if (!user) return null;
+
+            const formattedUser = {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                password: user.password,
+                cellphone: user.cellphone,
+                type: user.type,
+                createdAt: user.createdAt,
+            };
+
+            console.log("✅ Usuário formatado no UserService:", formattedUser);
+            return formattedUser;
+        } catch (error) {
+            console.error("❌ Erro no validateUser:", error);
+            throw error;
+        }
+    }
+
     static async saveUser(user) {
         try {
             await ValidateUserStrategy.execute(user);
