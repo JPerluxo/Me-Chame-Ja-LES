@@ -1,33 +1,19 @@
-const User = require('../../models/user');
+const sequelize = require("../../config/dbConfig");
+const UserDAO = require('../../daos/UserDAO');
 
-class AuthUserStrategy {
-  static async execute({ email, password }) {
-    try {
-      if (!User) {
-        throw new Error("❌ O model User não foi carregado corretamente!");
-      }
+class DeleteUserStrategy {
+    static async execute(id) {
+        const transaction = await sequelize.transaction();
+        try {
+            await UserDAO.delete(id, transaction);
 
-      const user = await User.findOne({
-        where: { email },
-        raw: true,
-      });
-
-      console.log("📦 Resultado bruto do banco:", user);
-
-      if (!user) {
-        throw new Error("Usuário não encontrado.");
-      }
-
-      if (password !== user.password) {
-        throw new Error("Senha incorreta.");
-      }
-
-      return user;
-    } catch (error) {
-      console.error("🔥 Erro dentro do AuthUserStrategy:", error);
-      throw error;
+            await transaction.commit();
+            return { status: 200, message: `Usuário ${id} deletado com sucesso!` };
+        } catch (error) {
+            await transaction.rollback();
+            throw error;
+        }
     }
-  }
 }
 
-module.exports = AuthUserStrategy;
+module.exports = DeleteUserStrategy;

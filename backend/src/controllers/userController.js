@@ -3,32 +3,14 @@ const router = express.Router();
 const UserService = require('../services/UserService');
 
 router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
+    const user = req.body;
 
-  try {
-    const user = await UserService.validateUser(email, password);
-
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: "Usuário ou senha inválidos",
-      });
+    try {
+        const result = await UserService.validateUser(user);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({ message: `Erro ao realizar login: ${error}`, success: false });
     }
-
-    console.log("🚀 Enviando ao frontend:", user);
-
-    return res.status(200).json({
-      success: true,
-      message: "Login realizado com sucesso!",
-      user,
-    });
-  } catch (error) {
-    console.error("🔥 Erro no login:", error);
-    res.status(500).json({
-      success: false,
-      message: "Erro ao realizar login",
-    });
-  }
 });
 
 router.post('/save', async (req, res) => {
