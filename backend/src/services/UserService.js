@@ -1,12 +1,23 @@
-const ValidateUserStrategy = require('../strategies/User/ValidateUserStrategy');
 const CheckUserIfExistsStrategy = require('../strategies/User/CheckUserIfExistsStrategy');
+const AuthUserStrategy = require('../strategies/User/AuthUserStrategy');
+const ValidateUserStrategy = require('../strategies/User/ValidateUserStrategy');
 const SaveUserStrategy = require('../strategies/User/SaveUserStrategy');
 const UpdateUserStrategy = require('../strategies/User/UpdateUserStrategy');
 const GetUsersStrategy = require('../strategies/User/GetUsersStrategy');
 const DeleteUserStrategy = require('../strategies/User/DeleteUserStrategy');
 const { Op } = require("sequelize");
 
+
 class UserService {
+    static async validateUser(user) {
+        try {
+            await CheckUserIfExistsStrategy.execute({ email: user.email }, "mustExist");
+            return await AuthUserStrategy.execute(user);
+        } catch (error) {
+            throw error;
+        }
+    }
+
     static async saveUser(user) {
         try {
             await ValidateUserStrategy.execute(user);
