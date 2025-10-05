@@ -1,9 +1,57 @@
-import { View, Text, Image, Pressable, ScrollView } from "react-native";
+import { useEffect, useState } from "react";
+import { View, Text, Image, Pressable, ScrollView, Alert } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Header } from "~/components/header";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter } from "expo-router";
 
 export default function Profile() {
+  const [user, setUser] = useState<{
+    id?: number;
+    name?: string;
+    email?: string;
+    cellphone?: string;
+    type?: string;
+    createdAt?: string;
+  } | null>(null);
+
+  const router = useRouter();
+
+  // Carregar usuário logado
+  useEffect(() => {
+    const carregarUsuario = async () => {
+      try {
+        const dados = await AsyncStorage.getItem("usuarioLogado");
+        if (dados) setUser(JSON.parse(dados));
+      } catch (error) {
+        console.error("Erro ao carregar usuário logado:", error);
+      }
+    };
+    carregarUsuario();
+  }, []);
+
+  // Formata número de celular vindo do banco (11996680081 → (11) 99668-0081)
+  const formatarCelular = (numero?: string) => {
+    if (!numero) return "(00) 00000-0000";
+    const digits = numero.replace(/\D/g, "");
+    if (digits.length === 11) {
+      return `(${digits.substring(0, 2)}) ${digits.substring(2, 7)}-${digits.substring(7)}`;
+    }
+    return numero;
+  };
+
+  // Logout
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem("usuarioLogado");
+      Alert.alert("Logout", "Você saiu da sua conta.");
+      router.push("/");
+    } catch (error) {
+      console.error("Erro ao fazer logout:", error);
+    }
+  };
+
   return (
     <LinearGradient
       colors={["#4EA8DE", "#5E60CE", "#4EA8DE"]}
@@ -12,27 +60,37 @@ export default function Profile() {
       style={{ flex: 1 }}
     >
       <View className="flex-1">
-        {/* Header fixo */}
         <Header />
 
         <ScrollView className="flex-1 p-6 space-y-6">
           {/* Card do usuário */}
           <View className="bg-white rounded-2xl shadow-lg p-6 mb-4 items-center">
+            {/* Gera imagem com iniciais do nome */}
             <Image
               source={{
-                uri: "https://randomuser.me/api/portraits/men/32.jpg",
+                uri:
+                  "https://api.dicebear.com/8.x/initials/png?seed=" +
+                  encodeURIComponent(user?.name || "Usuário") +
+                  "&backgroundType=gradientLinear&fontWeight=700",
               }}
               className="w-28 h-28 rounded-full mb-4 border-4 border-indigo-200"
             />
+
             <Text className="text-xl font-bold text-gray-900">
-              João Martins
+              {user?.name || "Usuário"}
             </Text>
             <Text className="text-sm text-gray-600 mt-1">
-              joao.martins92@gmail.com
+              {user?.email || "email@exemplo.com"}
             </Text>
             <Text className="text-sm text-gray-600 mt-1">
-              +55 21 98877-3344
+              {formatarCelular(user?.cellphone)}
             </Text>
+
+            {user?.createdAt && (
+              <Text className="text-xs text-gray-500 mt-1">
+                Membro desde {new Date(user.createdAt).toLocaleDateString("pt-BR")}
+              </Text>
+            )}
           </View>
 
           {/* Opções */}
@@ -70,9 +128,12 @@ export default function Profile() {
             </Pressable>
           </View>
 
-          {/* Botões finais */}
+          {/* Botão de sair */}
           <View className="space-y-3">
-            <Pressable className="bg-red-500 rounded-xl p-4 items-center shadow">
+            <Pressable
+              onPress={handleLogout}
+              className="bg-red-500 rounded-xl p-4 items-center shadow"
+            >
               <Text className="text-white font-bold">Sair</Text>
             </Pressable>
           </View>

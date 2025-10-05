@@ -151,6 +151,14 @@ export function Chooser({ onSelect }: Props) {
           motoristaFillHeight
         )}
       </View>
+
+      {/* Botão de Login */}
+      <Pressable
+        onPress={() => onSelect("login" as any)}
+        className="mt-10 px-8 py-3 bg-white rounded-xl shadow-md"
+      >
+        <Text className="text-[#5E60CE] font-bold text-lg">Login</Text>
+      </Pressable>
     </View>
   );
 }

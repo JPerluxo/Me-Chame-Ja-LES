@@ -1,4 +1,3 @@
-// src/components/header/index.tsx
 import {
   View,
   Text,
@@ -9,8 +8,9 @@ import {
 } from "react-native";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width } = Dimensions.get("window");
 const isMobile = width < 768;
@@ -19,12 +19,36 @@ const DRAWER_WIDTH = isMobile ? width : width * 0.3;
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [user, setUser] = useState<{ name?: string; email?: string } | null>(
+    null
+  );
 
   const menuAnim = useRef(new Animated.Value(-DRAWER_WIDTH)).current;
   const notifAnim = useRef(new Animated.Value(DRAWER_WIDTH)).current;
-
   const router = useRouter();
 
+  // Carregar o usuário logado do AsyncStorage
+  useEffect(() => {
+    const carregarUsuario = async () => {
+      try {
+        const dados = await AsyncStorage.getItem("usuarioLogado");
+        if (dados) setUser(JSON.parse(dados));
+      } catch (err) {
+        console.error("Erro ao carregar usuário logado:", err);
+      }
+    };
+    carregarUsuario();
+  }, []);
+
+  // Logout do usuário
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem("usuarioLogado");
+    setUser(null);
+    toggleMenu();
+    router.push("/");
+  };
+
+  // Animações do menu
   const toggleMenu = () => {
     if (isMenuOpen) {
       Animated.timing(menuAnim, {
@@ -128,7 +152,7 @@ export function Header() {
               <Feather name="x" size={22} color="#333" />
             </Pressable>
 
-            {/* 1. Foto de perfil / Login */}
+            {/* Foto de perfil / Nome do usuário */}
             <Pressable
               onPress={() => {
                 toggleMenu();
@@ -138,7 +162,9 @@ export function Header() {
             >
               <Ionicons name="person-circle-outline" size={40} color="#5E60CE" />
               <Text className="ml-3 text-lg font-semibold text-gray-800">
-                Login / Cadastro
+                {user
+                  ? `Olá, ${user.name?.split(" ")[0]}`
+                  : "Login / Cadastro"}
               </Text>
             </Pressable>
 
@@ -164,16 +190,17 @@ export function Header() {
               </Pressable>
             ))}
 
-
             {/* Botão de sair */}
-            <View className="flex w-full items-center">
-              <Pressable
-                onPress={() => router.push("/")}
-                className="w-fit mt-10 py-3 px-6 bg-[#5E60CE] rounded-lg"
-              >
-                <Text className="text-white font-semibold">Sair</Text>
-              </Pressable>
-            </View>
+            {user && (
+              <View className="flex w-full items-center">
+                <Pressable
+                  onPress={handleLogout}
+                  className="w-fit mt-10 py-3 px-6 bg-[#5E60CE] rounded-lg"
+                >
+                  <Text className="text-white font-semibold">Sair</Text>
+                </Pressable>
+              </View>
+            )}
           </Animated.View>
         </Pressable>
       )}
