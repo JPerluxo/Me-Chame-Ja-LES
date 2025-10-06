@@ -28,6 +28,12 @@ const Delivery = sequelize.define('entregas', {
         field: "veiculo_id"
     },
 
+    vehicleType: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        field: "tipo_veiculo"
+    },
+
     status: {
         type: DataTypes.ENUM("pendente", "aceita", "em_andamento", "concluida", "cancelada"),
         allowNull: false,
@@ -35,7 +41,7 @@ const Delivery = sequelize.define('entregas', {
     },
 
     type: {
-        type: DataTypes.ENUM("material_construcao", "animal", "outros"),
+        type: DataTypes.ENUM("documentos","comida","produtos_pequenos","mudancas","materiais_de_construcao","outros"),
         allowNull: false,
         field: "tipo"
     },

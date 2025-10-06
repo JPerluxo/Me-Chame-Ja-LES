@@ -38,7 +38,7 @@ class ValidateDeliveryStrategy {
                 throw new Error('O campo "Status" deve conter um valor válido.');
             }
 
-            if (typeof data.type !== 'string' || !["material_construcao", "animal", "outros"].includes(data.type)) {
+            if (typeof data.type !== 'string' || !["documentos","comida","produtos_pequenos","mudancas","materiais_de_construcao","outros"].includes(data.type)) {
                 throw new Error('O campo "Tipo" deve conter um valor válido.');
             }
 

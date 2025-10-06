@@ -1,6 +1,5 @@
-// src/components/categoryList/index.tsx
 import { View, Text, Image, FlatList, Dimensions, Pressable, TextInput } from "react-native";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Feather } from "@expo/vector-icons";
 
 const categories = [
@@ -45,7 +44,11 @@ const categories = [
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = width / 8 - 12;
 
-export function CategoryList() {
+type Props = {
+  onSelectCategory: (categoryName: string) => void;
+};
+
+export function CategoryList({ onSelectCategory }: Props) {
   const listRef = useRef<FlatList>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -66,6 +69,12 @@ export function CategoryList() {
       listRef.current?.scrollToIndex({ index: prevIndex, animated: true });
     }
   };
+
+  useEffect(() => {
+    if (selectedId === "6" && customCategory) {
+      onSelectCategory(customCategory);
+    }
+  }, [customCategory]);
 
   return (
     <View className="w-full mt-4 relative z-[-1]">
@@ -106,7 +115,10 @@ export function CategoryList() {
 
             return (
               <Pressable
-                onPress={() => setSelectedId(item.id)}
+                onPress={() => {
+                  setSelectedId(item.id);
+                  onSelectCategory(item.name);
+                }}
                 style={{ width: CARD_WIDTH }}
                 className={`relative min-w-40 mr-3 rounded-xl shadow p-3 cursor-pointer ${
                   isSelected
