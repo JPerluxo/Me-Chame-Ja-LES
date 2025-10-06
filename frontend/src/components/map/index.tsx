@@ -18,7 +18,7 @@ type MapProps = {
   onResumoRota?: (resumo: { distanciaKm: number; duracaoMin: number } | null) => void;
 };
 
-// ---- Função para buscar rota na Routes API ----
+// Função para buscar rota na Routes API
 async function buscarRota(retirada: Coords, destino: Coords, paradas: Coords[]) {
   const body = {
     origin: { location: { latLng: { latitude: retirada.lat, longitude: retirada.lon } } },
@@ -34,8 +34,7 @@ async function buscarRota(retirada: Coords, destino: Coords, paradas: Coords[]) 
     headers: {
       "Content-Type": "application/json",
       "X-Goog-Api-Key": GOOGLE_MAPS_API_KEY,
-      "X-Goog-FieldMask":
-        "routes.polyline.encodedPolyline,routes.distanceMeters,routes.duration",
+      "X-Goog-FieldMask": "routes.polyline.encodedPolyline,routes.distanceMeters,routes.duration",
     },
     body: JSON.stringify(body),
   });
@@ -46,24 +45,46 @@ async function buscarRota(retirada: Coords, destino: Coords, paradas: Coords[]) 
 
 export const Map: React.FC<MapProps> = ({ retirada, paradas, destino, onResumoRota }) => {
   const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<any>(null);
+  const polylineRef = useRef<any>(null);
+  const markersRef = useRef<any[]>([]);
 
   const loaded = useLoadScript(
     `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places,geometry&v=weekly&language=pt-BR&region=BR`
   );
 
+  // Inicializa o mapa apenas uma vez
   useEffect(() => {
-    if (!loaded || !window.google || !mapRef.current) return;
+    if (!loaded || !window.google || !mapRef.current || mapInstanceRef.current) return;
 
     const google = window.google;
-
     const map = new google.maps.Map(mapRef.current, {
       center: { lat: -23.55052, lng: -46.633308 },
-      zoom: 13,
+      zoom: 12,
     });
+
+    mapInstanceRef.current = map;
+  }, [loaded]);
+
+  // Atualiza markers e rota quando endereços mudam
+  useEffect(() => {
+    const google = window.google;
+    const map = mapInstanceRef.current;
+    if (!loaded || !google || !map) return;
+
+    // Remove markers antigos
+    markersRef.current.forEach((m) => m.setMap(null));
+    markersRef.current = [];
+
+    // Remove rota antiga
+    if (polylineRef.current) {
+      polylineRef.current.setMap(null);
+      polylineRef.current = null;
+    }
 
     const markers: any[] = [];
 
-    // Retirada
+    // Adiciona marcadores
     if (retirada) {
       markers.push(
         new google.maps.Marker({
@@ -75,7 +96,6 @@ export const Map: React.FC<MapProps> = ({ retirada, paradas, destino, onResumoRo
       );
     }
 
-    // Destino
     if (destino) {
       markers.push(
         new google.maps.Marker({
@@ -87,7 +107,6 @@ export const Map: React.FC<MapProps> = ({ retirada, paradas, destino, onResumoRo
       );
     }
 
-    // Paradas
     paradas.forEach((p, idx) => {
       markers.push(
         new google.maps.Marker({
@@ -99,7 +118,16 @@ export const Map: React.FC<MapProps> = ({ retirada, paradas, destino, onResumoRo
       );
     });
 
-    // Buscar e desenhar rota
+    markersRef.current = markers;
+
+    // Ajusta o mapa para caber tudo
+    if (markers.length > 0) {
+      const bounds = new google.maps.LatLngBounds();
+      markers.forEach((m) => bounds.extend(m.getPosition()!));
+      map.fitBounds(bounds);
+    }
+
+    // Desenha rota
     async function desenharRota() {
       if (!(retirada && destino)) {
         onResumoRota?.(null);
@@ -109,25 +137,22 @@ export const Map: React.FC<MapProps> = ({ retirada, paradas, destino, onResumoRo
       try {
         const rota = await buscarRota(retirada, destino, paradas);
         if (rota?.polyline?.encodedPolyline) {
-          const path = google.maps.geometry.encoding.decodePath(
-            rota.polyline.encodedPolyline
-          );
-          new google.maps.Polyline({
+          const path = google.maps.geometry.encoding.decodePath(rota.polyline.encodedPolyline);
+          const polyline = new google.maps.Polyline({
             path,
             geodesic: true,
             strokeColor: "#4285F4",
-            strokeOpacity: 0.8,
+            strokeOpacity: 0.85,
             strokeWeight: 5,
             map,
           });
+          polylineRef.current = polyline;
         }
 
         if (rota?.distanceMeters && rota?.duration) {
           const distanciaKm = rota.distanceMeters / 1000;
-          // rota.duration vem no formato "1234s"
           const duracaoSeg = parseInt(rota.duration.replace("s", ""), 10);
           const duracaoMin = Math.round(duracaoSeg / 60);
-
           onResumoRota?.({ distanciaKm, duracaoMin });
         }
       } catch (err) {
@@ -135,18 +160,12 @@ export const Map: React.FC<MapProps> = ({ retirada, paradas, destino, onResumoRo
         onResumoRota?.(null);
       }
     }
-    desenharRota();
 
-    // Ajusta bounds para mostrar todos os pontos
-    if (markers.length > 0) {
-      const bounds = new google.maps.LatLngBounds();
-      markers.forEach((m) => bounds.extend(m.getPosition()!));
-      map.fitBounds(bounds);
-    }
-  }, [loaded, retirada, paradas, destino]);
+    desenharRota();
+  }, [retirada?.lat, retirada?.lon, destino?.lat, destino?.lon, paradas.length]);
 
   return (
-    <View className="w-full h-full bg-white rounded-xl overflow-hidden shadow-md ">
+    <View className="w-full h-full bg-white rounded-xl overflow-hidden shadow-md">
       <div ref={mapRef} style={{ width: "100%", height: "100%" }} />
     </View>
   );
