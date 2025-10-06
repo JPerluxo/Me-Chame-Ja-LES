@@ -13,7 +13,7 @@ const vehicles = [
   },
   {
     id: "2",
-    name: "Carro Hatch",
+    name: "Hatch",
     size: "1 x 0.7 x 0.6 m",
     weight: "200 kg",
     description: "Perfeito para compras de mercado e pacotes médios",
@@ -21,7 +21,7 @@ const vehicles = [
   },
   {
     id: "3",
-    name: "Carro Sedan",
+    name: "Carro",
     size: "1.2 x 0.8 x 0.6 m",
     weight: "300 kg",
     description: "Espaço adicional em relação à categoria Carro Hatch",
@@ -29,7 +29,7 @@ const vehicles = [
   },
   {
     id: "4",
-    name: "Utilitário Pick-Up",
+    name: "Utilitario",
     size: "1.8 x 1.3 x 1.1 m",
     weight: "500 kg",
     description: "Para eletrodomésticos e pacotes maiores",
@@ -45,7 +45,7 @@ const vehicles = [
   },
   {
     id: "6",
-    name: "Caminhão 2.5t",
+    name: "Caminhão",
     size: "4 x 2.2 x 2.2 m",
     weight: "2500 kg",
     description: "Mudanças, móveis grandes e materiais pesados",
@@ -56,7 +56,11 @@ const vehicles = [
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = width / 8 - 12;
 
-export function VehicleList() {
+type Props = {
+  onSelectVehicle: (vehicleName: string) => void;
+};
+
+export function VehicleList({ onSelectVehicle }: Props) {
   const listRef = useRef<FlatList>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -116,7 +120,10 @@ export function VehicleList() {
 
             return (
               <Pressable
-                onPress={() => setSelectedId(item.id)}
+                onPress={() => {
+                  setSelectedId(item.id);
+                  onSelectVehicle(item.name);
+                }}
                 style={{ width: CARD_WIDTH }}
                 className={`relative min-w-40 mr-3 rounded-xl shadow p-3 cursor-pointer ${
                   isSelected
