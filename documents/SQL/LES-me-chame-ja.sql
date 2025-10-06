@@ -29,8 +29,9 @@ CREATE TABLE `entregas` (
   `solicitante_id` int NOT NULL,
   `motorista_id` int DEFAULT NULL,
   `veiculo_id` int DEFAULT NULL,
+  `tipo_veiculo` varchar(255) DEFAULT NULL,
   `status` enum('pendente','aceita','em_andamento','concluida','cancelada') NOT NULL DEFAULT 'pendente',
-  `tipo` enum('material_construcao','animal','outros') NOT NULL,
+  `tipo` enum('documentos','comida','produtos_pequenos','mudancas','materiais_de_construcao','outros') NOT NULL,
   `descricao` varchar(255) DEFAULT NULL,
   `endereco_origem` varchar(255) NOT NULL,
   `endereco_destino` varchar(255) NOT NULL,
@@ -53,7 +54,8 @@ CREATE TABLE `entregas` (
 
 LOCK TABLES `entregas` WRITE;
 /*!40000 ALTER TABLE `entregas` DISABLE KEYS */;
-INSERT INTO `entregas` VALUES (1,2,1,1,'pendente','material_construcao','Entrega de cimento e areia','Rua A, 123','Rua B, 456','2025-10-01 09:00:00',NULL,120.50),(2,2,3,2,'aceita','outros','Entrega de documentos importantes','Rua C, 789','Rua D, 101','2025-10-01 14:00:00',NULL,45.00);
+INSERT INTO `entregas` VALUES (2,2,3,2,'carro','aceita','documentos','Entrega de documentos importantes','Rua C, 789 - Jardim Universo, Mogi das Cruzes','Rua D, 101 - Vila Oliveira, Mogi das Cruzes','2025-10-01 14:00:00',NULL,45.00);
+
 /*!40000 ALTER TABLE `entregas` ENABLE KEYS */;
 UNLOCK TABLES;
 
